@@ -62,19 +62,6 @@ public class Trie {
         return getVal(x.children[c], key, d + 1);
     }
 
-    private void prefixCollector(Node x, StringBuilder prefix){
-        if (x == null)
-            return;
-        if (x.value != 0) {             //if the key exists, i.e value is not equal to 0, add that value to the
-            assCount += x.value;        //association count.
-        }
-
-        for(char c = 0; c < ASCII_MAX; c++){             //append every character in the ascii table to the prefix given,
-            prefix.append(c);                            //then recursively call back to collect to check if that sequence
-            prefixCollector(x.children[c], prefix);       //exists in the trie, if it doesn't it returns null, if x.value exists,
-        }                                                //we add that value to the assCount variable.
-    }
-
     public int countSamePrefix(String prefix){
         if (prefix == null)
             return 0;
@@ -83,21 +70,16 @@ public class Trie {
         return assCount;
     }
 
-    public void counterReset(){
-        assCount = 0;
-    }
-
-    private void distinctCollector(Node x, StringBuilder prefix){
+    private void prefixCollector(Node x, StringBuilder prefix){
         if (x == null)
             return;
-        if (x.value != 0) {
-            this.distinctCount += x.value;
+        if (x.value != 0) {             //if the key exists, i.e value is not equal to 0, add that value to the
+            assCount += x.value;        //association count.
         }
-        for(char c = 0; c < ASCII_MAX; c++){
-            prefix.append(c);
-            distinctCollector(x.children[c], prefix);
-            prefix.deleteCharAt(prefix.length() - 1);
-        }
+        for(char c = 0; c < ASCII_MAX; c++){           //append every character in the ascii table to the prefix given,
+            prefix.append(c);                          //then recursively call back to collect to check if that sequence
+            prefixCollector(x.children[c], prefix);    //exists in the trie, if it doesn't it returns null, if x.value
+        }                                              //exists, we add that value to the assCount variable.
     }
 
     public int distinctKey(String prefix){
@@ -105,7 +87,42 @@ public class Trie {
             return 0;
         Node x = getVal(root, prefix, 0);
         distinctCollector(x, new StringBuilder(prefix));
-        return this.distinctCount;
+        return distinctCount;
     }
 
+    private void distinctCollector(Node x, StringBuilder prefix){
+        if (x == null)
+            return;
+        if (x.value != root.value) {                    //if the key exists, and if the x node value isn't equal to the
+            distinctCount++;                            //root node value, increase the counter. This is because if the
+        }                                               //value differs somewhere it means they have the same prefix but
+        for(char c = 0; c < ASCII_MAX; c++){            //different postfix. The counter counts how many different
+            prefix.append(c);                           //postfix one prefix has.
+            distinctCollector(x.children[c], prefix);
+        }
+    }
+
+
+    public Iterable<String> keysWithPrefix(String prefix){
+        List<String> results = new ArrayList<>();
+        Node x = getVal(root, prefix, 0);
+        collect(x, new StringBuilder(prefix), results);
+        return results;
+    }
+
+    private void collect(Node x, StringBuilder prefix, List<String> results){
+        if (x==null)
+            return;
+        if (x.value != 0)
+            results.add(prefix.toString());
+        for(char c = 0; c < ASCII_MAX; c++){
+            prefix.append(c);
+            collect(x.children[c], prefix, results);
+            prefix.deleteCharAt(prefix.length() - 1);
+        }
+    }
+
+    public void counterReset(){
+        assCount = 0;
+    }       //reset the assCount variable for new search.
 }
