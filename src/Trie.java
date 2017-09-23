@@ -47,28 +47,28 @@ public class Trie {
         Node x = getVal(root, key, 0);   //x points to the root and follow the path were the key is put, it then
         if (x == null)                      //counts the value of that certain key if it exists, and it iterates the
             return 0;                       //x node the same as when we add a key, difference is we do not create a new
-                                            // node since we are only checking for the count value, not adding a new
-        return x.value;                     //element.
-    }
+                                            //node since we are only checking for the count value, and checking if the
+        return x.value;                     //key is in the trie. We return the amount of times this same sequence has
+    }                                       //been added to the trie.
 
     private Node getVal(Node x, String key, int d){
         if (x == null)
             return null;
 
         if (d == key.length())
-            return x;
-
-        char c = key.charAt(d);
-        return getVal(x.children[c], key, d + 1);
-    }
+            return x;                               //Searches through the trie with the given key, d is the index
+                                                    //of our key, and when it reaches the keys length we return the
+        char c = key.charAt(d);                     //node and confirm the key is in our trie. We do this recursively
+        return getVal(x.children[c], key, d + 1);//adding one to the d integer that iterates through the key,
+    }                                               //and checking if it matches the iteration through node children.
 
     public int countSamePrefix(String prefix){
         if (prefix == null)
             return 0;
-        Node x = getVal(root, prefix, 0);
-        prefixCollector(x, new StringBuilder(prefix));
-        return assCount;
-    }
+        Node x = getVal(root, prefix, 0);           //Here we count how many strings have the same prefix, and add
+        prefixCollector(x, new StringBuilder(prefix)); //the value of all the times the string has been inserted in the
+        return assCount;                               //trie. We add the values together and return it when the client
+    }                                                  //searches for a certain prefix.
 
     private void prefixCollector(Node x, StringBuilder prefix){
         if (x == null)
@@ -104,20 +104,20 @@ public class Trie {
 
 
     public Iterable<String> keysWithPrefix(String prefix){
-        List<String> results = new ArrayList<>();
-        Node x = getVal(root, prefix, 0);
-        collect(x, new StringBuilder(prefix), results);
-        return results;
+        List<String> lst = new ArrayList<>();       //We create an array list which will have the purpose of taking
+        Node x = getVal(root, prefix, 0);       //the keys that have the same given prefix.
+        collect(x, new StringBuilder(prefix), lst);//We get tha value of the root and it's children nodes and have x
+        return lst;                                //point to it.
     }
 
     private void collect(Node x, StringBuilder prefix, List<String> results){
-        if (x==null)
+        if (x == null)
             return;
         if (x.value != 0)
             results.add(prefix.toString());
-        for(char c = 0; c < ASCII_MAX; c++){
-            prefix.append(c);
-            collect(x.children[c], prefix, results);
+        for(char c = 0; c < ASCII_MAX; c++){            //we call recursively upon this method whilst appending a new
+            prefix.append(c);                           //char to the prefix, if the pattern matches a previous key in
+            collect(x.children[c], prefix, results);    //the trie, we add this appended prefix to our list.
             prefix.deleteCharAt(prefix.length() - 1);
         }
     }
@@ -125,4 +125,6 @@ public class Trie {
     public void counterReset(){
         assCount = 0;
     }       //reset the assCount variable for new search.
+
+    public void distinctCounterReset() { distinctCount = 0; }   //resets the distinct counter to 0.
 }
